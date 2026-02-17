@@ -12,6 +12,7 @@ const resultsScreen = document.getElementById('resultsScreen');
 
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const baseFormElement = document.getElementById('baseForm');
+const verbExampleElement = document.getElementById('verbExample');
 const pastSimpleInput = document.getElementById('pastSimple');
 const pastParticipleInput = document.getElementById('pastParticiple');
 const submitBtn = document.getElementById('submitBtn');
@@ -69,13 +70,49 @@ function showScreen(screen) {
     screen.classList.add('active');
 }
 
-function showStartScreen() {
+
+function showStartScreen(updateHistory = true) {
+    if (updateHistory) {
+        history.pushState({ screen: 'startScreen' }, '', '');
+    }
     showScreen(startScreen);
-    resetQuiz();
+    // Removed resetQuiz() to preserve state during navigation
 }
 
+// ===== History Management =====
+window.addEventListener('popstate', (event) => {
+    const state = event.state;
+    if (state && state.screen) {
+        if (state.screen === 'startScreen') {
+            showStartScreen(false);
+        } else if (state.screen === 'quizScreen') {
+            // Check if we need to restore a specific difficulty session
+            if (state.difficulty && state.difficulty !== currentDifficulty) {
+                currentDifficulty = state.difficulty;
+                startQuiz(false);
+            } else {
+                showScreen(quizScreen);
+                // If the DOM is empty (e.g. forward navigation), reload the question
+                if (currentVerbs.length > 0 && !baseFormElement.textContent) {
+                    loadQuestion();
+                }
+            }
+        } else if (state.screen === 'resultsScreen') {
+            showScreen(resultsScreen);
+        }
+    } else {
+        // Fallback to start screen if no state
+        showStartScreen(false);
+    }
+});
+
 // ===== Quiz Logic =====
-function startQuiz() {
+function startQuiz(updateHistory = true) {
+    // Only push state if requested
+    if (updateHistory) {
+        history.pushState({ screen: 'quizScreen', difficulty: currentDifficulty }, '', '');
+    }
+
     resetQuiz();
     currentVerbs = getVerbsByDifficulty(currentDifficulty);
     totalQuestionsElement.textContent = currentVerbs.length;
@@ -100,6 +137,7 @@ function loadQuestion() {
 
     const verb = currentVerbs[currentQuestionIndex];
     baseFormElement.textContent = verb.base;
+    verbExampleElement.textContent = verb.example;
 
     clearInputs();
     feedbackCard.classList.add('hidden');
@@ -227,6 +265,8 @@ function updateProgressBar() {
 
 // ===== Results =====
 function showResults() {
+    // Replace state so back button goes to start screen, not back to quiz
+    history.replaceState({ screen: 'resultsScreen' }, '', '');
     showScreen(resultsScreen);
 
     const totalQuestions = currentVerbs.length;
@@ -269,6 +309,8 @@ function showResults() {
 
 // ===== Initialize =====
 function init() {
+    // Set initial state
+    history.replaceState({ screen: 'startScreen' }, '', '');
     showScreen(startScreen);
 }
 
