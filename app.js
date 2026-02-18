@@ -12,7 +12,10 @@ const resultsScreen = document.getElementById('resultsScreen');
 
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const baseFormElement = document.getElementById('baseForm');
-const verbExampleElement = document.getElementById('verbExample');
+const examplePastElement = document.getElementById('examplePast');
+const exampleParticipleElement = document.getElementById('exampleParticiple');
+const hintPastElement = document.getElementById('hintPast');
+const hintParticipleElement = document.getElementById('hintParticiple');
 const pastSimpleInput = document.getElementById('pastSimple');
 const pastParticipleInput = document.getElementById('pastParticiple');
 const submitBtn = document.getElementById('submitBtn');
@@ -129,6 +132,13 @@ function resetQuiz() {
     clearInputs();
 }
 
+function generateHint(answer) {
+    // Handle multiple answers (e.g. "was/were" -> use "was")
+    const mainAnswer = answer.split('/')[0].trim();
+    if (mainAnswer.length <= 1) return '_';
+    return mainAnswer[0] + '_'.repeat(mainAnswer.length - 1);
+}
+
 function loadQuestion() {
     if (currentQuestionIndex >= currentVerbs.length) {
         showResults();
@@ -137,7 +147,12 @@ function loadQuestion() {
 
     const verb = currentVerbs[currentQuestionIndex];
     baseFormElement.textContent = verb.base;
-    verbExampleElement.textContent = verb.example;
+    examplePastElement.textContent = verb.examplePast;
+    exampleParticipleElement.textContent = verb.exampleParticiple;
+
+    // Generate and set hints
+    hintPastElement.textContent = generateHint(verb.past);
+    hintParticipleElement.textContent = generateHint(verb.participle);
 
     clearInputs();
     feedbackCard.classList.add('hidden');
