@@ -154,6 +154,7 @@ function loadQuestion() {
     hintPastElement.textContent = generateHint(verb.past);
     hintParticipleElement.textContent = generateHint(verb.participle);
 
+
     clearInputs();
     feedbackCard.classList.add('hidden');
     submitBtn.disabled = false;
