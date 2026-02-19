@@ -5,6 +5,14 @@ let currentQuestionIndex = 0;
 let score = 0;
 let answers = [];
 
+// New State for Timer and Study Mode
+let timerEnabled = false;
+let timerLimit = 15;
+let timerInterval = null;
+let timeLeft = 0;
+let studyVerbs = [];
+let currentStudyIndex = 0;
+
 // ===== DOM Elements =====
 const startScreen = document.getElementById('startScreen');
 const quizScreen = document.getElementById('quizScreen');
@@ -40,6 +48,29 @@ const accuracyRate = document.getElementById('accuracyRate');
 const retryBtn = document.getElementById('retryBtn');
 const homeBtn = document.getElementById('homeBtn');
 
+// New DOM Elements
+const studyScreen = document.getElementById('studyScreen');
+const studyModeBtn = document.getElementById('studyModeBtn');
+const exitStudyBtn = document.getElementById('exitStudyBtn');
+const prevStudyBtn = document.getElementById('prevStudyBtn');
+const nextStudyBtn = document.getElementById('nextStudyBtn');
+const flashcard = document.getElementById('flashcard');
+const studyBaseFront = document.getElementById('studyBaseFront');
+const studyBase = document.getElementById('studyBase');
+const studyPast = document.getElementById('studyPast');
+const studyParticiple = document.getElementById('studyParticiple');
+const studyExamplePast = document.getElementById('studyExamplePast');
+const studyExampleParticiple = document.getElementById('studyExampleParticiple');
+const studyCurrentIndex = document.getElementById('studyCurrentIndex');
+const studyTotalTotal = document.getElementById('studyTotalTotal');
+
+const timerToggle = document.getElementById('timerToggle');
+const timerLimitSelect = document.getElementById('timerLimit');
+const timerLimitContainer = document.getElementById('timerLimitContainer');
+const timerContainer = document.getElementById('timerContainer');
+const timerBar = document.getElementById('timerBar');
+const timerText = document.getElementById('timerText');
+
 // ===== Event Listeners =====
 difficultyButtons.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -52,6 +83,23 @@ submitBtn.addEventListener('click', checkAnswers);
 nextBtn.addEventListener('click', nextQuestion);
 retryBtn.addEventListener('click', () => startQuiz());
 homeBtn.addEventListener('click', showStartScreen);
+
+// New Event Listeners
+studyModeBtn.addEventListener('click', startStudyMode);
+exitStudyBtn.addEventListener('click', showStartScreen);
+prevStudyBtn.addEventListener('click', prevStudyVerb);
+nextStudyBtn.addEventListener('click', nextStudyVerb);
+flashcard.addEventListener('click', flipFlashcard);
+
+timerToggle.addEventListener('change', (e) => {
+    timerEnabled = e.target.checked;
+    timerLimitContainer.style.opacity = timerEnabled ? '1' : '0.5';
+    timerLimitContainer.style.pointerEvents = timerEnabled ? 'all' : 'none';
+});
+
+timerLimitSelect.addEventListener('change', (e) => {
+    timerLimit = parseInt(e.target.value);
+});
 
 // Handle Enter key for inputs
 pastSimpleInput.addEventListener('keypress', (e) => {
@@ -99,6 +147,11 @@ window.addEventListener('popstate', (event) => {
                     loadQuestion();
                 }
             }
+        } else if (state.screen === 'studyScreen') {
+            showScreen(studyScreen);
+            if (studyVerbs.length === 0) {
+                startStudyMode(false);
+            }
         } else if (state.screen === 'resultsScreen') {
             showScreen(resultsScreen);
         }
@@ -119,6 +172,14 @@ function startQuiz(updateHistory = true) {
     currentVerbs = getVerbsByDifficulty(currentDifficulty);
     totalQuestionsElement.textContent = currentVerbs.length;
     showScreen(quizScreen);
+
+    // Timer UI Visibility
+    if (timerEnabled) {
+        timerContainer.classList.remove('hidden');
+    } else {
+        timerContainer.classList.add('hidden');
+    }
+
     loadQuestion();
 }
 
@@ -129,6 +190,7 @@ function resetQuiz() {
     updateScore();
     feedbackCard.classList.add('hidden');
     clearInputs();
+    stopTimer();
 }
 
 function generateHint(answer) {
@@ -155,6 +217,11 @@ function loadQuestion() {
 
     currentQuestionElement.textContent = currentQuestionIndex + 1;
     updateProgressBar();
+
+    // Start Timer if enabled
+    if (timerEnabled) {
+        startTimer();
+    }
 
     // Focus on first input
     setTimeout(() => pastSimpleInput.focus(), 100);
@@ -188,6 +255,8 @@ function checkAnswers() {
         }
         return;
     }
+
+    stopTimer();
 
     const pastSimpleCorrect = checkAnswer(userPastSimple, verb.past);
     const pastParticipleCorrect = checkAnswer(userPastParticiple, verb.participle);
@@ -314,6 +383,139 @@ function showResults() {
     } else {
         resultsIcon.textContent = '📚';
         resultsTitle.textContent = 'Keep Learning!';
+    }
+}
+
+
+// ===== Study Mode Logic =====
+function startStudyMode(updateHistory = true) {
+    if (updateHistory) {
+        history.pushState({ screen: 'studyScreen' }, '', '');
+    }
+
+    studyVerbs = [...irregularVerbs].sort(() => Math.random() - 0.5);
+    currentStudyIndex = 0;
+    studyTotalTotal.textContent = studyVerbs.length;
+
+    showScreen(studyScreen);
+    loadStudyVerb();
+}
+
+function loadStudyVerb() {
+    const verb = studyVerbs[currentStudyIndex];
+    flashcard.classList.remove('flipped');
+
+    // Update contents
+    studyBaseFront.textContent = verb.base;
+    studyBase.textContent = verb.base;
+    studyPast.textContent = verb.past;
+    studyParticiple.textContent = verb.participle;
+
+    studyExamplePast.textContent = verb.examplePast.replace('___', verb.past);
+    studyExampleParticiple.textContent = verb.exampleParticiple.replace('___', verb.participle);
+
+    studyCurrentIndex.textContent = currentStudyIndex + 1;
+}
+
+function flipFlashcard() {
+    flashcard.classList.toggle('flipped');
+}
+
+function nextStudyVerb() {
+    if (currentStudyIndex < studyVerbs.length - 1) {
+        currentStudyIndex++;
+        loadStudyVerb();
+    } else {
+        currentStudyIndex = 0; // Loop back
+        loadStudyVerb();
+    }
+}
+
+function prevStudyVerb() {
+    if (currentStudyIndex > 0) {
+        currentStudyIndex--;
+        loadStudyVerb();
+    } else {
+        currentStudyIndex = studyVerbs.length - 1; // Loop back
+        loadStudyVerb();
+    }
+}
+
+// ===== Timer Logic =====
+function startTimer() {
+    stopTimer();
+    timeLeft = timerLimit;
+    updateTimerDisplay();
+
+    timerInterval = setInterval(() => {
+        timeLeft -= 0.1;
+        if (timeLeft <= 0) {
+            timeLeft = 0;
+            updateTimerDisplay();
+            handleTimeUp();
+        } else {
+            updateTimerDisplay();
+        }
+    }, 100);
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function updateTimerDisplay() {
+    const percentage = (timeLeft / timerLimit) * 100;
+    timerBar.style.width = `${percentage}%`;
+    timerText.textContent = `${Math.ceil(timeLeft)}s`;
+
+    // Change color as it gets low
+    if (timeLeft < 5) {
+        timerBar.style.background = 'var(--error-gradient)';
+        timerText.style.color = 'var(--error-color)';
+    } else {
+        timerBar.style.background = 'var(--success-gradient)';
+        timerText.style.color = 'var(--text-secondary)';
+    }
+}
+
+function handleTimeUp() {
+    stopTimer();
+
+    // Mark as incorrect if not already submitted
+    if (!submitBtn.disabled) {
+        const userPastSimple = pastSimpleInput.value.trim() || "(No answer)";
+        const userPastParticiple = pastParticipleInput.value.trim() || "(No answer)";
+
+        const verb = currentVerbs[currentQuestionIndex];
+
+        // Update input styles to show they are wrong
+        pastSimpleInput.classList.add('incorrect');
+        pastParticipleInput.classList.add('incorrect');
+
+        // Show incorrect messages
+        const pastSimpleFeedback = pastSimpleInput.parentElement.querySelector('.input-feedback');
+        const pastParticipleFeedback = pastParticipleInput.parentElement.querySelector('.input-feedback');
+
+        pastSimpleFeedback.textContent = `✗ Time's up! Correct: ${verb.past}`;
+        pastSimpleFeedback.classList.add('incorrect');
+        pastParticipleFeedback.textContent = `✗ Time's up! Correct: ${verb.participle}`;
+        pastParticipleFeedback.classList.add('incorrect');
+
+        // Store answer
+        answers.push({
+            verb: verb.base,
+            correct: false,
+            userPastSimple,
+            userPastParticiple,
+            correctPastSimple: verb.past,
+            correctPastParticiple: verb.participle
+        });
+
+        showFeedback(false, verb);
+        submitBtn.disabled = true;
     }
 }
 

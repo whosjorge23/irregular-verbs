@@ -51,6 +51,35 @@
                 </div>
             </div>
 
+            <div class="settings-section">
+                <h2 class="section-title">Challenge Options</h2>
+                <div class="settings-grid">
+                    <label class="setting-item">
+                        <input type="checkbox" id="timerToggle">
+                        <span class="setting-label">Enable Timer</span>
+                    </label>
+                    <div class="setting-item" id="timerLimitContainer" style="opacity: 0.5; pointer-events: none;">
+                        <span class="setting-label">Seconds per verb:</span>
+                        <select id="timerLimit" class="setting-select">
+                            <option value="10">10s</option>
+                            <option value="15" selected>15s</option>
+                            <option value="20">20s</option>
+                            <option value="30">30s</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-section">
+                <button id="studyModeBtn" class="action-btn secondary full-width">
+                    <div class="btn-icon-large">🃏</div>
+                    <div class="btn-text-content">
+                        <span class="btn-main-text">Flashcard Study Mode</span>
+                        <span class="btn-sub-text">Review verbs before you test</span>
+                    </div>
+                </button>
+            </div>
+
             <div class="stats-preview">
                 <div class="stat-item">
                     <div class="stat-number">100+</div>
@@ -78,6 +107,10 @@
                     </div>
                     <div class="progress-bar">
                         <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="timerContainer" class="timer-container hidden">
+                        <div id="timerBar" class="timer-bar"></div>
+                        <span id="timerText" class="timer-text">15s</span>
                     </div>
                 </div>
             </div>
@@ -126,6 +159,75 @@
                         Next Question
                         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Study Screen -->
+        <div id="studyScreen" class="screen">
+            <div class="study-header">
+                <button id="exitStudyBtn" class="back-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    Back to Menu
+                </button>
+                <div class="study-progress">
+                    Verb <span id="studyCurrentIndex">1</span> of <span id="studyTotalTotal">100</span>
+                </div>
+            </div>
+
+            <div class="study-content">
+                <div class="flashcard-container">
+                    <div id="flashcard" class="flashcard">
+                        <div class="flashcard-front">
+                            <div class="card-label">Base Form</div>
+                            <div id="studyBaseFront" class="card-word">go</div>
+                            <div class="card-hint">Tap to reveal past forms</div>
+                        </div>
+                        <div class="flashcard-back">
+                            <div class="forms-display">
+                                <div class="form-item">
+                                    <span class="form-label">Base Form</span>
+                                    <span id="studyBase" class="form-word">go</span>
+                                </div>
+                                <div class="form-divider"></div>
+                                <div class="form-item">
+                                    <span class="form-label">Past Simple</span>
+                                    <span id="studyPast" class="form-word">went</span>
+                                </div>
+                                <div class="form-divider"></div>
+                                <div class="form-item">
+                                    <span class="form-label">Past Participle</span>
+                                    <span id="studyParticiple" class="form-word">gone</span>
+                                </div>
+                            </div>
+                            <div class="card-hint">Tap to hide</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="study-example" id="studyExampleContainer">
+                    <div class="example-box">
+                        <div class="example-label">Example sentences:</div>
+                        <div id="studyExamplePast" class="example-text"></div>
+                        <div id="studyExampleParticiple" class="example-text"></div>
+                    </div>
+                </div>
+
+                <div class="study-controls">
+                    <button id="prevStudyBtn" class="nav-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                        Previous
+                    </button>
+                    <button id="nextStudyBtn" class="nav-btn">
+                        Next
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 5l6 6-6 6" />
                         </svg>
                     </button>
                 </div>
