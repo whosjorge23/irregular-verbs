@@ -12,7 +12,8 @@ const resultsScreen = document.getElementById('resultsScreen');
 
 const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const baseFormElement = document.getElementById('baseForm');
-const verbExampleElement = document.getElementById('verbExample');
+const examplePastElement = document.getElementById('examplePast');
+const exampleParticipleElement = document.getElementById('exampleParticiple');
 const pastSimpleInput = document.getElementById('pastSimple');
 const pastParticipleInput = document.getElementById('pastParticiple');
 const submitBtn = document.getElementById('submitBtn');
@@ -137,7 +138,8 @@ function loadQuestion() {
 
     const verb = currentVerbs[currentQuestionIndex];
     baseFormElement.textContent = verb.base;
-    verbExampleElement.textContent = verb.example;
+    examplePastElement.textContent = verb.examplePast;
+    exampleParticipleElement.textContent = verb.exampleParticiple;
 
     clearInputs();
     feedbackCard.classList.add('hidden');
