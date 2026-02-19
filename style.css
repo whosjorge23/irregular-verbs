@@ -476,6 +476,23 @@ body {
     color: var(--error-color);
 }
 
+.input-example {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.input-hint {
+    margin-top: var(--spacing-xs);
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    min-height: 1.25rem;
+    opacity: 0.8;
+}
+
 /* ===== Buttons ===== */
 .submit-btn,
 .next-btn {
