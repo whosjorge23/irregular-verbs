@@ -14,8 +14,7 @@ const difficultyButtons = document.querySelectorAll('.difficulty-btn');
 const baseFormElement = document.getElementById('baseForm');
 const examplePastElement = document.getElementById('examplePast');
 const exampleParticipleElement = document.getElementById('exampleParticiple');
-const hintPastElement = document.getElementById('hintPast');
-const hintParticipleElement = document.getElementById('hintParticiple');
+
 const pastSimpleInput = document.getElementById('pastSimple');
 const pastParticipleInput = document.getElementById('pastParticiple');
 const submitBtn = document.getElementById('submitBtn');
@@ -149,11 +148,6 @@ function loadQuestion() {
     baseFormElement.textContent = verb.base;
     examplePastElement.textContent = verb.examplePast;
     exampleParticipleElement.textContent = verb.exampleParticiple;
-
-    // Generate and set hints
-    hintPastElement.textContent = generateHint(verb.past);
-    hintParticipleElement.textContent = generateHint(verb.participle);
-
 
     clearInputs();
     feedbackCard.classList.add('hidden');
