@@ -257,7 +257,11 @@ function loadQuestion() {
     }
 
     // Focus on first input
-    setTimeout(() => pastSimpleInput.focus(), 100);
+    setTimeout(() => {
+        pastSimpleInput.focus();
+        // Scroll to question if needed
+        quizScreen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
 }
 
 function clearInputs() {
@@ -368,6 +372,11 @@ function showFeedback(isCorrect, verb) {
             <strong>${verb.base}</strong> → <strong>${verb.past}</strong> → <strong>${verb.participle}</strong>
         `;
     }
+
+    // Auto-scroll to feedback
+    setTimeout(() => {
+        feedbackCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
 }
 
 function nextQuestion() {
