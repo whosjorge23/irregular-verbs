@@ -12,6 +12,8 @@ let timerInterval = null;
 let timeLeft = 0;
 let studyVerbs = [];
 let currentStudyIndex = 0;
+let missedVerbs = [];
+let masteryData = {};
 
 // ===== DOM Elements =====
 const startScreen = document.getElementById('startScreen');
@@ -68,6 +70,12 @@ const timerToggle = document.getElementById('timerToggle');
 const timerLimitSelect = document.getElementById('timerLimit');
 const timerLimitContainer = document.getElementById('timerLimitContainer');
 const timerContainer = document.getElementById('timerContainer');
+
+// Mastery & Mistakes Elements
+const masteredCount = document.getElementById('masteredCount');
+const learningCount = document.getElementById('learningCount');
+const needsPracticeCount = document.getElementById('needsPracticeCount');
+const mistakesBtn = document.getElementById('mistakesBtn');
 const timerBar = document.getElementById('timerBar');
 const timerText = document.getElementById('timerText');
 
@@ -181,6 +189,31 @@ function startQuiz(updateHistory = true) {
     }
 
     loadQuestion();
+}
+
+function startMistakesQuiz() {
+    if (missedVerbs.length === 0) return;
+
+    currentVerbs = [...missedVerbs];
+    missedVerbs = []; // Clear for the new session
+
+    score = 0;
+    currentQuestionIndex = 0;
+    answers = [];
+
+    totalQuestionsElement.textContent = currentVerbs.length;
+    showScreen(quizScreen);
+
+    if (timerEnabled) {
+        timerContainer.classList.remove('hidden');
+    } else {
+        timerContainer.classList.add('hidden');
+    }
+
+    loadQuestion();
+
+    // Update history
+    history.pushState({ screen: 'quizScreen', type: 'mistakes' }, '', '');
 }
 
 function resetQuiz() {
@@ -302,6 +335,15 @@ function checkAnswers() {
         correctPastParticiple: verb.participle
     });
 
+    if (!bothCorrect) {
+        if (!missedVerbs.find(v => v.base === verb.base)) {
+            missedVerbs.push(verb);
+        }
+    }
+
+    // Update Mastery Data
+    updateVerbMastery(verb.base, bothCorrect);
+
     // Show feedback card
     showFeedback(bothCorrect, verb);
 
@@ -384,6 +426,17 @@ function showResults() {
         resultsIcon.textContent = '📚';
         resultsTitle.textContent = 'Keep Learning!';
     }
+
+    // Show/Hide Review Mistakes button
+    if (missedVerbs.length > 0) {
+        mistakesBtn.classList.remove('hidden');
+    } else {
+        mistakesBtn.classList.add('hidden');
+    }
+
+    // Save mastery data after quiz
+    saveMasteryData();
+    updateMasteryOverview();
 }
 
 
@@ -514,17 +567,79 @@ function handleTimeUp() {
             correctPastParticiple: verb.participle
         });
 
+        if (!missedVerbs.find(v => v.base === verb.base)) {
+            missedVerbs.push(verb);
+        }
+
+        updateVerbMastery(verb.base, false);
+
         showFeedback(false, verb);
         submitBtn.disabled = true;
     }
 }
 
+// ===== Mastery Logic =====
+function loadMasteryData() {
+    const saved = localStorage.getItem('verbMastery');
+    if (saved) {
+        masteryData = JSON.parse(saved);
+    }
+}
+
+function saveMasteryData() {
+    localStorage.setItem('verbMastery', JSON.stringify(masteryData));
+}
+
+function updateVerbMastery(verbBase, isCorrect) {
+    if (!masteryData[verbBase]) {
+        masteryData[verbBase] = { correct: 0, attempts: 0 };
+    }
+
+    masteryData[verbBase].attempts++;
+    if (isCorrect) {
+        masteryData[verbBase].correct++;
+    }
+}
+
+function updateMasteryOverview() {
+    let mastered = 0;
+    let learning = 0;
+    let practice = 0;
+
+    // Use irregularVerbs from verbs.js to get all possible verbs
+    irregularVerbs.forEach(verb => {
+        const data = masteryData[verb.base];
+        if (!data || data.attempts === 0) {
+            practice++;
+        } else {
+            const accuracy = data.correct / data.attempts;
+            if (accuracy >= 0.8 && data.attempts >= 3) {
+                mastered++;
+            } else if (accuracy >= 0.5) {
+                learning++;
+            } else {
+                practice++;
+            }
+        }
+    });
+
+    masteredCount.textContent = mastered;
+    learningCount.textContent = learning;
+    needsPracticeCount.textContent = practice;
+}
+
 // ===== Initialize =====
 function init() {
+    loadMasteryData();
+    updateMasteryOverview();
+
     // Set initial state
     history.replaceState({ screen: 'startScreen' }, '', '');
     showScreen(startScreen);
 }
+
+// New Event Listeners
+mistakesBtn.addEventListener('click', startMistakesQuiz);
 
 // Start the app
 init();

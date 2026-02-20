@@ -32,6 +32,31 @@
 
             <div class="difficulty-selector">
                 <h2 class="section-title">Choose Your Level</h2>
+                <!-- Mastery Overview -->
+                <div class="mastery-stats-container">
+                    <div class="mastery-stat-card mastered">
+                        <div class="mastery-icon">🟢</div>
+                        <div class="mastery-info">
+                            <span class="mastery-count" id="masteredCount">0</span>
+                            <span class="mastery-label">Mastered</span>
+                        </div>
+                    </div>
+                    <div class="mastery-stat-card learning">
+                        <div class="mastery-icon">🟡</div>
+                        <div class="mastery-info">
+                            <span class="mastery-count" id="learningCount">0</span>
+                            <span class="mastery-label">Learning</span>
+                        </div>
+                    </div>
+                    <div class="mastery-stat-card needs-practice">
+                        <div class="mastery-icon">🔴</div>
+                        <div class="mastery-info">
+                            <span class="mastery-count" id="needsPracticeCount">0</span>
+                            <span class="mastery-label">Practice</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="difficulty-grid">
                     <button class="difficulty-btn" data-difficulty="easy">
                         <div class="difficulty-icon">🌱</div>
@@ -269,6 +294,13 @@
                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         Try Again
+                    </button>
+                    <button id="mistakesBtn" class="action-btn secondary hidden">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Review Mistakes
                     </button>
                     <button id="homeBtn" class="action-btn secondary">
                         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

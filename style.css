@@ -1044,6 +1044,73 @@ body {
     opacity: 0.7;
 }
 
+/* ===== Mastery Stats ===== */
+.mastery-stats-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.mastery-stat-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-normal);
+}
+
+.mastery-stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.mastery-icon {
+    font-size: 1.5rem;
+}
+
+.mastery-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.mastery-count {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.mastery-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+}
+
+.mastery-stat-card.mastered {
+    border-bottom: 3px solid var(--success-color);
+}
+
+.mastery-stat-card.learning {
+    border-bottom: 3px solid #f1c40f;
+}
+
+.mastery-stat-card.needs-practice {
+    border-bottom: 3px solid var(--error-color);
+}
+
+@media (max-width: 768px) {
+    .mastery-stats-container {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ===== Responsive Design ===== */
 @media (max-width: 768px) {
     .container {
