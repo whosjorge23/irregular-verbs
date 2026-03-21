@@ -1200,3 +1200,29 @@ body {
 svg defs {
     display: none;
 }
+/* ===== Google AdSense Styling ===== */
+.ad-container {
+    width: 100%;
+    margin: var(--spacing-lg) 0;
+    display: flex;
+    justify-content: center;
+    background: var(--bg-glass);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    min-height: 90px;
+}
+
+.top-ad {
+    margin-bottom: var(--spacing-xl);
+}
+
+.bottom-ad {
+    margin-top: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+    .ad-container {
+        margin: var(--spacing-md) 0;
+        min-height: 50px;
+    }
+}
